@@ -1,3 +1,7 @@
+###### TODO
+- fix b64 encoding (need to use URL safe)
+- Why are claims not matching?
+
 # spore-client-java
 Spore client in Java (duh...)
 
@@ -115,6 +119,7 @@ This could be the approach used by an extremely limited IoT device. In the best 
 ```JAVA
 String response = sporeClient.doEntropyRequest(null);
 String entropy = response.getString("entropy");
+
 ```
 
 

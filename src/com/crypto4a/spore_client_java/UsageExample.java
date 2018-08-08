@@ -1,11 +1,23 @@
 package com.crypto4a.spore_client_java;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 
 public class UsageExample {
 
@@ -19,8 +31,8 @@ public class UsageExample {
 		String serverAddress = args[0];
 		SporeClient sporeClient = new SporeClient(serverAddress);
 
-		System.out.println("Performing requests: ");
-		performRequests(sporeClient);
+//		System.out.println("Performing requests: ");
+//		performRequests(sporeClient);
 
 		System.out.println("Performing use cases: ");
 		useCases(sporeClient);
@@ -98,6 +110,8 @@ public class UsageExample {
 		if (challenge.equals(receivedChallenge)) {
 			System.out.println("Challenges match");
 		} else {
+			System.out.println(challenge);
+			System.out.println(receivedChallenge);
 			throw new Exception("Challenges do not match");
 		}
 		
@@ -114,11 +128,35 @@ public class UsageExample {
 			throw new Exception("Response is not fresh");
 		}
 		
-		// If we know the entropy was generated for our request and that it is fresh. If we want to
-		// go further and autheticate it, we can verify the signature of the JWT and cross reference 
-		// its content with what we received.
+		// We now know the entropy was generated for our request and that it is fresh. If we want to
+		// go further and authenticate it, we can verify the signature of the JWT and cross 
+		// reference its content with what we received.
+		response = sporeClient.doCertificateChainRequest();
+		byte[] certChain = response.getString("certificateChain").getBytes();
 		
+		InputStream is = new ByteArrayInputStream(certChain);
+//		PEMParser pemParser = new PEMParser(new InputStreamReader(is));
 		
-			
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		X509Certificate certificate = (X509Certificate) cf.generateCertificate(is);
+		PublicKey publicKey = certificate.getPublicKey();
+
+//		KeyFactory kf = KeyFactory.getInstance("RSA");
+//		EncodedKeySpec keySpec = new X509EncodedKeySpec(pemParser.readPemObject().getContent());
+//		PublicKey publicKey = kf.generatePublic(keySpec);
+		
+		String token = response.getString("JWT");
+		Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) publicKey, null);
+		JWTVerifier verifier = JWT.require(algorithm)
+//				.withClaim("entropySize", entropySize)
+//				.withClaim("challenge", challenge)
+//				.withClaim("timestamp", timestamp)
+//				.withClaim("entropy", b64entropy)
+				.build();
+		DecodedJWT jwt = verifier.verify(token);
+		
+//		pemParser.close();
 	}
 }
+
+
