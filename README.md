@@ -110,6 +110,13 @@ System.out.println("Entropy size: " + response.get("entropySize"));
 ### Seeding a local RNG without verification of the entropy's source
 This is the simplest use case, where a client wants to seed its local RNG without caring to autheticate the server, verify the freshness of the response or even verify the challenge.
 
+This could be the approach used by an extremely limited IoT device. In the best case, the received entropy was not compromise and the client is left better off after the operation. In the worst case, the received entropy was compromised and the clients entropy pool is left unchanged.
+
+```JAVA
+String response = sporeClient.doEntropyRequest(null);
+String entropy = response.getString("entropy");
+```
+
 
 
 

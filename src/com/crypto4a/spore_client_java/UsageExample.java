@@ -13,19 +13,17 @@ public class UsageExample {
 	 * 
 	 * @param args
 	 *            args[0](String) -- Spore server adress
-	 * 
-	 * @throws JSONException
-	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws IOException, JSONException {
+	public static void main(String[] args) throws Exception {
 		String serverAddress = args[0];
 		SporeClient sporeClient = new SporeClient(serverAddress);
 
 		System.out.println("Performing requests: ");
 		performRequests(sporeClient);
 
-		System.out.println("Seeding local radnomness generator: ");
-		seedRNG(sporeClient);
+		System.out.println("Performing use cases: ");
+		useCases(sporeClient);
 
 	}
 
@@ -54,25 +52,73 @@ public class UsageExample {
 		System.out.println();
 	}
 
-	public static void testConnection(SporeClient sporeClient) throws IOException, JSONException {
-
-		// Performing a info request is a simple way to validate that the connection is
-		// working. An exception is thrown at this point if the server can't be reached
-		// or if an error is returned.
+	public static void useCases(SporeClient sporeClient) throws Exception {
+		
+		// First, we perform a getInfo request. This servers two purposes: it allows us to test the
+		// connection and provides us with the size in bytes of the randomness that will be sent.
 		JSONObject response = sporeClient.doInfoRequest();
-
-		// Printing the received information is not necessary.
-		System.out.println("Server name: " + response.get("name"));
-		System.out.println("Entropy size: " + response.get("entropySize"));
+		int entropySize = response.getInt("entropySize");
+		System.out.println("getInfo request successful");
+		System.out.println("entropySize: " + String.valueOf(entropySize));
+		
+		// Now that the we know the server is reachable, we can perform a getEntropy request.
+		// We will generate a random challenge for this.
+		SecureRandom rbg = new SecureRandom();
+		byte[] randomBytes = new byte[16];
+		rbg.nextBytes(randomBytes);
+		String challenge = Base64.getEncoder().encodeToString(randomBytes);
+		response = sporeClient.doEntropyRequest(challenge);
+		String b64entropy = response.getString("entropy");
+		System.out.println("getEntropy request successful");
+		
+		
+		// We now have good quality entropy. We will use it to seed our RBG. We will mix it with
+		// local entropy first. Indeed, if the received entropy was compromised, by mixing it with
+		// our local entropy, we end up with the same amount of entropy. However, if we were to
+		// simply seed our RNG directly with the received entropy, our RNG would be compromised.
+		// Here we will simply XOR the two byte arrays. However, a more complicated and robust hash
+		// algorithm could be used.
+		byte[] entropy = Base64.getDecoder().decode(b64entropy);
+		randomBytes = new byte[entropySize];
+		rbg.nextBytes(randomBytes);
+		for (int i = 0; i < entropySize; i++) {
+			entropy[i] ^= randomBytes[i];
+		}
+		rbg.setSeed(entropy);
+		System.out.println("RBG successfully seeded");
+		
+		// So far we did not bother to verify the freshness or the authenticity of the received
+		// entropy. This is fine since in the worst case scenario (the received entropy is 
+		// compromised), we are left with the same level of security as before. This could be the 
+		// approach taken by an IoT device with extremely limited resources. However, some
+		// applications will required a guaranty that their level of entropy is now 
+		// cryptographically secure, and thus need to perform some freshness and/or authenticity
+		// verifications. Let's start by validating that the response was indeed for our request.
+		String receivedChallenge = response.getString("challenge");
+		if (challenge.equals(receivedChallenge)) {
+			System.out.println("Challenges match");
+		} else {
+			throw new Exception("Challenges do not match");
+		}
+		
+		
+		// Now, let's make sure the response if fresh. We will use a one minute window here and
+		// compare the timestamp to our local time.
+		long timestamp = response.getLong("timestamp");
+		long localTime = System.currentTimeMillis();
+		long freshnessWindowSec = 60;
+		
+		if (Math.abs(timestamp - localTime) <= freshnessWindowSec * 1000) {
+			System.out.println("Response is fresh");
+		} else {
+			throw new Exception("Response is not fresh");
+		}
+		
+		// If we know the entropy was generated for our request and that it is fresh. If we want to
+		// go further and autheticate it, we can verify the signature of the JWT and cross reference 
+		// its content with what we received.
+		
+		
+			
 	}
-
-	public static void seedRNG(SporeClient sporeClient) throws IOException, JSONException {
-		String entropy = sporeClient.doEntropyRequest(null).getString("entropy");
-		System.out.println("Received entropy: " + entropy);
-
-		SecureRandom rng = new SecureRandom();
-		rng.setSeed(Base64.getDecoder().decode(entropy));
-		System.out.println("SecureRandom was seeded successfully.");
-	}
-
 }
