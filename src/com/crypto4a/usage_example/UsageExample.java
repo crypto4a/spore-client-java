@@ -16,7 +16,6 @@ import org.json.JSONObject;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.crypto4a.spore_client_java.SporeClient;
 
 
@@ -111,8 +110,6 @@ public class UsageExample {
 		if (challenge.equals(receivedChallenge)) {
 			System.out.println("Challenges match");
 		} else {
-			System.out.println(challenge);
-			System.out.println(receivedChallenge);
 			throw new Exception("Challenges do not match");
 		}
 		
@@ -148,7 +145,7 @@ public class UsageExample {
 				.withClaim("timestamp", timestamp)
 				.withClaim("entropy", b64entropy)
 				.build();
-		DecodedJWT jwt = verifier.verify(token);
+		verifier.verify(token);
 		System.out.println("Entropy response is authenticated");
 		
 	}
