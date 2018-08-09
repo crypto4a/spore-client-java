@@ -68,8 +68,8 @@ public class UsageExample {
 		
 		// First, we perform a getInfo request. This servers two purposes: it allows us to test the
 		// connection and provides us with the size in bytes of the randomness that will be sent.
-		JSONObject response = sporeClient.doInfoRequest();
-		int entropySize = response.getInt("entropySize");
+		JSONObject infoResponse = sporeClient.doInfoRequest();
+		int entropySize = infoResponse.getInt("entropySize");
 		System.out.println("getInfo request successful");
 		System.out.println("entropySize: " + String.valueOf(entropySize));
 		
@@ -78,9 +78,9 @@ public class UsageExample {
 		SecureRandom rbg = new SecureRandom();
 		byte[] randomBytes = new byte[16];
 		rbg.nextBytes(randomBytes);
-		String challenge = Base64.getEncoder().encodeToString(randomBytes);
-		response = sporeClient.doEntropyRequest(challenge);
-		String b64entropy = response.getString("entropy");
+		String challenge = Base64.getUrlEncoder().encodeToString(randomBytes);
+		JSONObject entropyResponse = sporeClient.doEntropyRequest(challenge);
+		String b64entropy = entropyResponse.getString("entropy");
 		System.out.println("getEntropy request successful");
 		
 		
@@ -90,7 +90,7 @@ public class UsageExample {
 		// simply seed our RNG directly with the received entropy, our RNG would be compromised.
 		// Here we will simply XOR the two byte arrays. However, a more complicated and robust hash
 		// algorithm could be used.
-		byte[] entropy = Base64.getDecoder().decode(b64entropy);
+		byte[] entropy = Base64.getUrlDecoder().decode(b64entropy);
 		randomBytes = new byte[entropySize];
 		rbg.nextBytes(randomBytes);
 		for (int i = 0; i < entropySize; i++) {
@@ -106,7 +106,7 @@ public class UsageExample {
 		// applications will required a guaranty that their level of entropy is now 
 		// cryptographically secure, and thus need to perform some freshness and/or authenticity
 		// verifications. Let's start by validating that the response was indeed for our request.
-		String receivedChallenge = response.getString("challenge");
+		String receivedChallenge = entropyResponse.getString("challenge");
 		if (challenge.equals(receivedChallenge)) {
 			System.out.println("Challenges match");
 		} else {
@@ -118,44 +118,38 @@ public class UsageExample {
 		
 		// Now, let's make sure the response if fresh. We will use a one minute window here and
 		// compare the timestamp to our local time.
-		long timestamp = response.getLong("timestamp");
+		long timestamp = entropyResponse.getLong("timestamp");
 		long localTime = System.currentTimeMillis();
 		long freshnessWindowSec = 60;
 		
 		if (Math.abs(timestamp - localTime) <= freshnessWindowSec * 1000) {
-			System.out.println("Response is fresh");
+			System.out.println("Entropy response is fresh");
 		} else {
-			throw new Exception("Response is not fresh");
+			throw new Exception("Entropy response is not fresh");
 		}
 		
 		// We now know the entropy was generated for our request and that it is fresh. If we want to
 		// go further and authenticate it, we can verify the signature of the JWT and cross 
-		// reference its content with what we received.
-		response = sporeClient.doCertificateChainRequest();
-		byte[] certChain = response.getString("certificateChain").getBytes();
-		
+		// reference its content with what we received. The public key is fetched from the X.509
+		// certificate received from a getCertificateChain request. If required, the certificate
+		// chain can be analyzed to insure its source is a trusted CA.
+		JSONObject certResponse = sporeClient.doCertificateChainRequest();
+		byte[] certChain = certResponse.getString("certificateChain").getBytes();
 		InputStream is = new ByteArrayInputStream(certChain);
-//		PEMParser pemParser = new PEMParser(new InputStreamReader(is));
-		
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		X509Certificate certificate = (X509Certificate) cf.generateCertificate(is);
 		PublicKey publicKey = certificate.getPublicKey();
 
-//		KeyFactory kf = KeyFactory.getInstance("RSA");
-//		EncodedKeySpec keySpec = new X509EncodedKeySpec(pemParser.readPemObject().getContent());
-//		PublicKey publicKey = kf.generatePublic(keySpec);
-		
-		String token = response.getString("JWT");
+		String token = entropyResponse.getString("JWT");
 		Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) publicKey, null);
 		JWTVerifier verifier = JWT.require(algorithm)
-//				.withClaim("entropySize", entropySize)
-//				.withClaim("challenge", challenge)
-//				.withClaim("timestamp", timestamp)
-//				.withClaim("entropy", b64entropy)
+				.withClaim("challenge", challenge)
+				.withClaim("timestamp", timestamp)
+				.withClaim("entropy", b64entropy)
 				.build();
 		DecodedJWT jwt = verifier.verify(token);
+		System.out.println("Entropy response is authenticated");
 		
-//		pemParser.close();
 	}
 }
 
