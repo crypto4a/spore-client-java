@@ -1,11 +1,8 @@
-###### TODO
-- fix b64 encoding (need to use URL safe)
-- Why are claims not matching?
+# Spore Client Java
+A JAva implementation of the [Spore Protocol](Add link to ref here)
 
-# spore-client-java
-Spore client in Java (duh...)
 
-### External Libraries
+## Installation
 - [JSON in Java](https://mvnrepository.com/artifact/org.json/json/20140107) 
 
 ### Spore
