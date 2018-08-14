@@ -117,7 +117,7 @@ public class UsageExample {
 		// Now, let's make sure the response if fresh. We will use a one minute window here and
 		// compare the timestamp to our local time.
 		long timestamp = entropyResponse.getLong("timestamp");
-		long localTime = System.currentTimeMillis();
+		long localTime = System.currentTimeMillis() / 1000L;
 		long freshnessWindowSec = 60;
 		
 		if (Math.abs(timestamp - localTime) <= freshnessWindowSec * 1000) {
