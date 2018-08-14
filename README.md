@@ -83,7 +83,7 @@ long timestamp = entropyResponse.getLong("timestamp");
 long localTime = System.currentTimeMillis() / 1000L;
 long freshnessWindowSec = 60;
 
-if (Math.abs(timestamp - localTime) <= freshnessWindowSec * 1000) {
+if (Math.abs(timestamp - localTime) <= freshnessWindowSec) {
 	System.out.println("Entropy response is fresh");
 } else {
 	throw new Exception("Entropy response is not fresh");
