@@ -91,7 +91,7 @@ if (Math.abs(timestamp - localTime) <= freshnessWindowSec) {
 ```
 Here we allow a one minute window.
 
-### Authenticating the response
+### Authenticating the Response
 Using the JWT received in the response, we can authenticate it using the server's public signature. If it is not known, it can be obtained with a `getCertChain` request.
 ```JAVA
 JSONObject certResponse = sporeClient.doCertificateChainRequest();
