@@ -80,7 +80,7 @@ if (challenge.equals(receivedChallenge)) {
 Another verification that can be made is to verify that the entropy sent is fresh. This can easily be done with the help of the returned timestamp.
 ```JAVA
 long timestamp = entropyResponse.getLong("timestamp");
-long localTime = System.currentTimeMillis();
+long localTime = System.currentTimeMillis() / 1000L;
 long freshnessWindowSec = 60;
 
 if (Math.abs(timestamp - localTime) <= freshnessWindowSec * 1000) {
