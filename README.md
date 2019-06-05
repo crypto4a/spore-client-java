@@ -13,9 +13,9 @@ You will also need to following dependencies:
 (Publish artifact to Maven?)
 
 ## Known Spore Servers
-rootofqaos.com
-rootofentropy.com
-entropy.2keys.io
+- rootofqaos.com
+- rootofentropy.com
+- entropy.2keys.io
 
 ## Usage
 ### Choose a server
