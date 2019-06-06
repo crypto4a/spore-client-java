@@ -10,10 +10,12 @@ You will also need to following dependencies:
 - [Java JWT][3]
 
 ### Maven
-(Publish artifact to Maven?)
+(Publish artifact to Maven - future work)
 
 ## Known Spore Servers
-(Add address of known servers)
+- rootofqaos.com
+- rootofentropy.com
+- entropy.2keys.io
 
 ## Usage
 ### Choose a server
