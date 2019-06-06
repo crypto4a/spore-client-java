@@ -10,7 +10,7 @@ You will also need to following dependencies:
 - [Java JWT][3]
 
 ### Maven
-(Publish artifact to Maven?)
+(Publish artifact to Maven - future work)
 
 ## Known Spore Servers
 - rootofqaos.com
