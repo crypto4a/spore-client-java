@@ -10,7 +10,14 @@ You will also need to following dependencies:
 - [Java JWT][3]
 
 ### Maven
-(Publish artifact to Maven - future work)
+
+To build JAR file:
+
+```
+$ mvn clean install
+```
+
+JAR located in .../target directory.
 
 ## Known Spore Servers
 - rootofqaos.com
