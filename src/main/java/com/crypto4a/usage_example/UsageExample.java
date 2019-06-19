@@ -24,7 +24,7 @@ public class UsageExample {
 	/**
 	 * 
 	 * @param args
-	 *            args[0](String) -- Spore server adress
+	 *            args[0](String) -- Spore server address
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
@@ -33,12 +33,19 @@ public class UsageExample {
 
 //		System.out.println("Performing requests: ");
 //		performRequests(sporeClient);
-
-		System.out.println("Performing use cases: ");
-		useCases(sporeClient);
+				
+//		System.out.println("Performing use cases: ");
+//		useCases(sporeClient);
+		
+		getRawEntropy(sporeClient);
 
 	}
 
+	public static void getRawEntropy(SporeClient sporeClient) throws IOException, JSONException {
+		JSONObject response = sporeClient.doEntropyRequest("1234");
+		System.out.println("\tentropy: " + response.get("entropy"));
+	}
+	
 	public static void performRequests(SporeClient sporeClient) throws IOException, JSONException {
 		JSONObject response = sporeClient.doInfoRequest();
 		System.out.println("getInfo request:");
@@ -50,7 +57,7 @@ public class UsageExample {
 		response = sporeClient.doEntropyRequest("AwesomeChallenge");
 		System.out.println("getEntropy request:");
 		System.out.println("\tJWT: " + response.get("JWT"));
-		System.out.println("\tentorpy: " + response.get("entropy"));
+		System.out.println("\tentropy: " + response.get("entropy"));
 		System.out.println("\tchallenge: " + response.get("challenge"));
 		System.out.println("\ttimestamp: " + response.get("timestamp"));
 		System.out.println(response.toString(4));
