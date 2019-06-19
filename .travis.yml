@@ -1,2 +1,9 @@
 language: java
 jdk: openjdk8
+deploy:
+  provider: releases
+  api_key:
+    secure: UBgVjquZmazdo27hKR7fzKf7Xuq5vUMExcxkrhSmaZIMEv9uBOkRv0JaguKXVyxZ5ybqEFV8tkg+TfV6KRNbFNDnOZmKUneRmRMBJqb30mu8CXpE+ta845wMz+8ZCO4b9U9TJVQU1CEwKMWWPrwyrcPXC80XEVZMRLIRilq1JxSTYRUJKFKBJe+5B8diF41QSzoc3N0KNOVklkRYJi8wB62yEqF6UGlvteSzQ+dKs3iDLFqA/D0mKVWUC0j3lzwR0dT80wyZxz2ixtK0KvP/O6qqmvoIF4oNPgvu/BnXkuXcI+yeanHFVKdkWJ4GHpe2HGrB+o4HopRaeKNudSbYQJXhIaWtWAz8arYBrg0K9mjOOTUp3Ug/k1PQINJM/L8FBKZ3IEqbk5IBwhPG/no2psqr2PyiiB8uIRDS3HDdeh1vXa/eeclGQUd79eOPGkqO/mdau4/RxDfLd49DvzxBAaDOhazT38ELYPOXkx+gz4ePKHv0YTYeCKIRpW1kP2HFw32Rt/OdRlJ9vtV7DNS/RxJuagpN+YeGpEPYtRK5JWQVa4EgeqUhXc6fjFfHTJCy4Vz+6S+2p/ODN9dZHtWPqIc0443Sd7XaVWvRWnAzYBv78P7pF+UabQFan8nuzRiKrd1OklnJ5TRf18VVHAkMLPgqJUBxeetJoOXTx4tO21Q=
+  file: "/target/appassembler/bin/usage"
+  on:
+    repo: nopose/spore-client-java
