@@ -8,4 +8,3 @@ deploy:
   skip_cleanup: true
   on:
     repo: nopose/spore-client-java
-    tags: true
