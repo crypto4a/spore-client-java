@@ -1,7 +1,7 @@
 language: java
 jdk: openjdk8
 install: true
-script: "mvn --show-version --errors --batch-mode -Prun-its clean verify"
+script: "mvn clean install"
 deploy:
   provider: releases
   api_key:
@@ -10,3 +10,7 @@ deploy:
   skip_cleanup: true
   on:
     repo: nopose/spore-client-java
+addons:
+  artifacts:
+    debug: true
+
