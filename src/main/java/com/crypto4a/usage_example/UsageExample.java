@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.crypto4a.spore_client_java.SporeClient;
 
 
@@ -146,6 +147,10 @@ public class UsageExample {
 		PublicKey publicKey = certificate.getPublicKey();
 
 		String token = entropyResponse.getString("JWT");
+		DecodedJWT decodedJWT = JWT.decode(token);
+		String algStr = decodedJWT.getAlgorithm();
+		System.out.println("	Algorithm string: "+algStr);
+		
 		Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) publicKey, null);
 		JWTVerifier verifier = JWT.require(algorithm)
 				.withClaim("challenge", challenge)
