@@ -15,7 +15,7 @@
 					<programs>
 						<program>
 							<mainClass>com.crypto4a.usage_example.UsageExample</mainClass>
-							<id>usage</id>
+							<id>get-entropy</id>
 						</program>
 					</programs>
 				</configuration>
@@ -24,6 +24,47 @@
 						<phase>package</phase>
 						<goals>
 							<goal>assemble</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<!-- The following is an ANT target -->
+							<target>
+								<chmod file="./target/appassembler/bin/get-entropy" perm="a+x" />
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<descriptors>
+						<descriptor>src/main/assembly/src.xml</descriptor>
+					</descriptors>
+					<tarLongFileMode>gnu</tarLongFileMode>
+					<appendAssemblyId>false</appendAssemblyId>
+					<finalName>entropy</finalName>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>
