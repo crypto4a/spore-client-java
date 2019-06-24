@@ -7,6 +7,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 
@@ -35,16 +36,8 @@ public class UsageExample {
 //		System.out.println("Performing requests: ");
 //		performRequests(sporeClient);
 				
-//		System.out.println("Performing use cases: ");
-//		useCases(sporeClient);
-		
-		getRawEntropy(sporeClient);
-
-	}
-
-	public static void getRawEntropy(SporeClient sporeClient) throws IOException, JSONException {
-		JSONObject response = sporeClient.doEntropyRequest("1234");
-		System.out.println("\tentropy: " + response.get("entropy"));
+		System.out.println("Performing use cases: ");
+		useCases(sporeClient);
 	}
 	
 	public static void performRequests(SporeClient sporeClient) throws IOException, JSONException {
@@ -88,6 +81,7 @@ public class UsageExample {
 		rbg.nextBytes(randomBytes);
 		String challenge = Base64.getUrlEncoder().encodeToString(randomBytes);
 		JSONObject entropyResponse = sporeClient.doEntropyRequest(challenge);
+		System.out.println("\tentropy: " + entropyResponse.get("entropy"));
 		String b64entropy = entropyResponse.getString("entropy");
 		System.out.println("getEntropy request successful");
 		
@@ -145,13 +139,35 @@ public class UsageExample {
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		X509Certificate certificate = (X509Certificate) cf.generateCertificate(is);
 		PublicKey publicKey = certificate.getPublicKey();
-
+		
 		String token = entropyResponse.getString("JWT");
 		DecodedJWT decodedJWT = JWT.decode(token);
 		String algStr = decodedJWT.getAlgorithm();
-		System.out.println("	Algorithm string: "+algStr);
 		
-		Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) publicKey, null);
+		Algorithm algorithm = null;
+		switch (algStr) {
+			case "RSA256":
+				algorithm = Algorithm.RSA256((RSAPublicKey)publicKey, null);
+				break;
+			case "RSA384":
+				algorithm = Algorithm.RSA384((RSAPublicKey)publicKey, null);
+				break;
+			case "RSA512":
+				algorithm = Algorithm.RSA512((RSAPublicKey)publicKey, null);
+				break;
+			case "ES256":
+				algorithm = Algorithm.ECDSA256((ECPublicKey)publicKey, null);
+				break;
+			case "ES384":
+				algorithm = Algorithm.ECDSA384((ECPublicKey)publicKey, null);
+				break;
+			case "ES512":
+				algorithm = Algorithm.ECDSA512((ECPublicKey)publicKey, null);
+				break;
+			default:
+				System.out.println("ERROR: Token algorithm not recognized");
+		}	
+		
 		JWTVerifier verifier = JWT.require(algorithm)
 				.withClaim("challenge", challenge)
 				.withClaim("timestamp", timestamp)
@@ -159,7 +175,6 @@ public class UsageExample {
 				.build();
 		verifier.verify(token);
 		System.out.println("Entropy response is authenticated");
-		
 	}
 }
 
