@@ -1,10 +1,10 @@
 language: java
 jdk: openjdk8
-before_install:
-- echo ${TRAVIS_BUILD_DIR}
-- ls
 install: true
 script: "mvn clean install"
+before_deploy:
+- export TRAVIS_TAG=${TRAVIS_BUILD_NUMBER}
+- git tag $TRAVIS_TAG
 deploy:
   provider: releases
   api_key:
@@ -16,7 +16,4 @@ deploy:
   skip_cleanup: true
   on:
     repo: nopose/spore-client-java
-addons:
-  artifacts:
-    debug: true
 
