@@ -26,7 +26,7 @@ JAR located in .../target directory.
 
 ## Usage
 ### Choose a server
-Any of the servers from the [Known Spore Servers](#known-spore-servers) section offer good quality entropy through the Spore Protocol. Once the server is choosen, simply pass it's address to the `SporeClient` constructor.
+Any of the servers from the [Known Spore Servers](#known-spore-servers) section offer good quality entropy through the Spore Protocol. Once the server is chosen, simply pass it's address to the `SporeClient` constructor.
 ```JAVA
 String serverAddress = "http://127.0.0.41:8099/eaasp/";
 SporeClient sporeClient = new SporeClient(serverAddress);
