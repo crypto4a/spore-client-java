@@ -146,13 +146,13 @@ public class UsageExample {
 		
 		Algorithm algorithm = null;
 		switch (algStr) {
-			case "RSA256":
+			case "RS256":
 				algorithm = Algorithm.RSA256((RSAPublicKey)publicKey, null);
 				break;
-			case "RSA384":
+			case "RS384":
 				algorithm = Algorithm.RSA384((RSAPublicKey)publicKey, null);
 				break;
-			case "RSA512":
+			case "RS512":
 				algorithm = Algorithm.RSA512((RSAPublicKey)publicKey, null);
 				break;
 			case "ES256":
