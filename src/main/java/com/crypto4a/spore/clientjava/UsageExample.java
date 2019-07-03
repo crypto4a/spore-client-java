@@ -1,4 +1,4 @@
-package com.crypto4a.usage_example;
+package com.crypto4a.spore.clientjava;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -18,7 +18,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.crypto4a.spore_client_java.SporeClient;
 
 
 public class UsageExample {

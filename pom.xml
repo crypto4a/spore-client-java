@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.crypto4a.spore</groupId>
-	<artifactId>spore-client-java</artifactId>
+	<artifactId>client-java</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<build>
 		<plugins>
@@ -14,7 +14,7 @@
 				<configuration>
 					<programs>
 						<program>
-							<mainClass>com.crypto4a.usage_example.UsageExample</mainClass>
+							<mainClass>com.crypto4a.spore.clientjava.UsageExample</mainClass>
 							<id>get-entropy</id>
 						</program>
 					</programs>
