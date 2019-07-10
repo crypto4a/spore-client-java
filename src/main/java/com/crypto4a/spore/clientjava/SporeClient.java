@@ -1,4 +1,4 @@
-package com.crypto4a.spore_client_java;
+package com.crypto4a.spore.clientjava;
 
 import java.io.BufferedReader;
 import java.io.IOException;

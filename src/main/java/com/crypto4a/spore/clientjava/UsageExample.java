@@ -1,4 +1,4 @@
-package com.crypto4a.usage_example;
+package com.crypto4a.spore.clientjava;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -7,6 +7,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 
@@ -16,7 +17,7 @@ import org.json.JSONObject;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.crypto4a.spore_client_java.SporeClient;
+import com.auth0.jwt.interfaces.DecodedJWT;
 
 
 public class UsageExample {
@@ -24,7 +25,7 @@ public class UsageExample {
 	/**
 	 * 
 	 * @param args
-	 *            args[0](String) -- Spore server adress
+	 *            args[0](String) -- Spore server address
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
@@ -33,12 +34,11 @@ public class UsageExample {
 
 //		System.out.println("Performing requests: ");
 //		performRequests(sporeClient);
-
+				
 		System.out.println("Performing use cases: ");
 		useCases(sporeClient);
-
 	}
-
+	
 	public static void performRequests(SporeClient sporeClient) throws IOException, JSONException {
 		JSONObject response = sporeClient.doInfoRequest();
 		System.out.println("getInfo request:");
@@ -50,7 +50,7 @@ public class UsageExample {
 		response = sporeClient.doEntropyRequest("AwesomeChallenge");
 		System.out.println("getEntropy request:");
 		System.out.println("\tJWT: " + response.get("JWT"));
-		System.out.println("\tentorpy: " + response.get("entropy"));
+		System.out.println("\tentropy: " + response.get("entropy"));
 		System.out.println("\tchallenge: " + response.get("challenge"));
 		System.out.println("\ttimestamp: " + response.get("timestamp"));
 		System.out.println(response.toString(4));
@@ -80,6 +80,7 @@ public class UsageExample {
 		rbg.nextBytes(randomBytes);
 		String challenge = Base64.getUrlEncoder().encodeToString(randomBytes);
 		JSONObject entropyResponse = sporeClient.doEntropyRequest(challenge);
+		System.out.println("\tentropy: " + entropyResponse.get("entropy"));
 		String b64entropy = entropyResponse.getString("entropy");
 		System.out.println("getEntropy request successful");
 		
@@ -137,9 +138,35 @@ public class UsageExample {
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		X509Certificate certificate = (X509Certificate) cf.generateCertificate(is);
 		PublicKey publicKey = certificate.getPublicKey();
-
+		
 		String token = entropyResponse.getString("JWT");
-		Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) publicKey, null);
+		DecodedJWT decodedJWT = JWT.decode(token);
+		String algStr = decodedJWT.getAlgorithm();
+		
+		Algorithm algorithm = null;
+		switch (algStr) {
+			case "RS256":
+				algorithm = Algorithm.RSA256((RSAPublicKey)publicKey, null);
+				break;
+			case "RS384":
+				algorithm = Algorithm.RSA384((RSAPublicKey)publicKey, null);
+				break;
+			case "RS512":
+				algorithm = Algorithm.RSA512((RSAPublicKey)publicKey, null);
+				break;
+			case "ES256":
+				algorithm = Algorithm.ECDSA256((ECPublicKey)publicKey, null);
+				break;
+			case "ES384":
+				algorithm = Algorithm.ECDSA384((ECPublicKey)publicKey, null);
+				break;
+			case "ES512":
+				algorithm = Algorithm.ECDSA512((ECPublicKey)publicKey, null);
+				break;
+			default:
+				System.out.println("ERROR: Token algorithm not recognized");
+		}	
+		
 		JWTVerifier verifier = JWT.require(algorithm)
 				.withClaim("challenge", challenge)
 				.withClaim("timestamp", timestamp)
@@ -147,7 +174,6 @@ public class UsageExample {
 				.build();
 		verifier.verify(token);
 		System.out.println("Entropy response is authenticated");
-		
 	}
 }
 

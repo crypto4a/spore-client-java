@@ -1,0 +1,25 @@
+language: java
+jdk: openjdk8
+branches:
+  only:
+  - master
+cache:
+  directories:
+  - $HOME/.m2
+install: true
+script: "mvn clean install"
+before_deploy:
+- export TRAVIS_TAG=${TRAVIS_BUILD_NUMBER}
+- git tag $TRAVIS_TAG
+deploy:
+  provider: releases
+  api_key:
+    secure: yfSXvDx/Nvs8FnYq7q41vwHW4X7qJCmqLHZjozazOxkpGj5SRPD+NjZ0AWQHhNQZR4JoPYSvJM6Ubg8hv/+ODjHu1aEdR0pgVPwvrFPwUEuZlLUF2xfC202sisPyICKQulRiYbPxAvW5vCBs5MoOqDX+0GJunk2QR7vBZBiYfM2uU0kuTwlpHt+vivvM9cso7gVO8s5F83A+ds9RKFfN79wdQHvHVlkbzlXKBtaYEj4E26idG7WKO1j6kQtYcc/A1mUg0dohWPlK15TwNDWb9UBTlrxkt38xbcUfcQT3CFOBBQtW6njTMCbj7H19va3ZMD6N/76RTpHiKPeBE9G0nrUmZ3jzvlzGNIBBE0GP7xe/v4SbNX4RxeLnuuNnF528ZZxKuiNTkZeVGwYdUNlhyWtqaLaouwD/9qo7Vkkwd0wLg8JIYkPYb6Evu+3TXGij3Jp2/CdPlXc8S/+ZrPT014izb9jRzwL0REirdkjYqXT2PNr3U5yy7WyhMu8ciEFu3AZ2FICz2fkkI9ZvvuqfAbnLJAQAm3lhXEd0poz9Uc6bmstQCEXeVxcEMtRXjM6pKN6U/0YoK4rYa18HPw+nYfAvZecKpXajML1D29G/P4Tr0kVhuSi0XMG6YnaGCybRX8I861hyz+IdaYdhBImIGuvbQjXMcsnrQ/lgk1RGS2M=
+  file_glob: true
+  file: 
+    - "${TRAVIS_BUILD_DIR}/target/entropy.tar.gz" 
+    - "${TRAVIS_BUILD_DIR}/target/entropy.zip"
+  skip_cleanup: true
+  on:
+    repo: nopose/spore-client-java
+
